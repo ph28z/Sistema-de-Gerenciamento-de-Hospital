@@ -12,4 +12,6 @@ file(GLOB SOURCES "src/*.cpp")
 # Cria o executável
 add_executable(SistemaHospitalar main.cpp ${SOURCES}
         main.cpp
+        include/Medico.h
+        src/Medico.cpp
 )
