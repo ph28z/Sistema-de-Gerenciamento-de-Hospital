@@ -14,4 +14,6 @@ add_executable(SistemaHospitalar main.cpp ${SOURCES}
         main.cpp
         include/Medico.h
         src/Medico.cpp
+        include/Pessoa.h
+        src/Pessoa.cpp
 )
