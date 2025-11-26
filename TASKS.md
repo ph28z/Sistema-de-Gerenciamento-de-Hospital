@@ -13,9 +13,9 @@ Fase inicial para estruturar o projeto e as classes principais.
     - [X] Criar repositório Git e configurar `.gitignore` (ignorar binários e arquivos temporários).
     - [X] Configurar `CMakeLists.txt` para compilação.
     - [X] Criar estrutura de pastas: `src/`, `include/`, `data/`.
-- [ ] **Classe Abstrata `Pessoa`**
-    - [ ] Criar classe com atributos comuns: Nome e Contato/Endereço.
-    - [ ] Definir atributos como `protected` ou `private` com getters/setters (Encapsulamento).
+- [X] **Classe Abstrata `Pessoa`**
+    - [X] Criar classe com atributos comuns: Nome e Contato/Endereço.
+    - [X] Definir atributos como `protected` ou `private` com getters/setters (Encapsulamento).
 
 ## 2. Gestão de Pacientes
 Requisitos focados no módulo de pacientes.
