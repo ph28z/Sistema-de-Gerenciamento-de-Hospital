@@ -7,6 +7,12 @@ O sistema utiliza persistência de dados em arquivos.
 **Disciplina:** Programação Orientada a Objetos  
 **Data de Entrega:** 08/12/2025 
 
+## Objetivos do Projeto
+Para ver o detalhamento do que já foi feito e o que falta, acesse nossa:
+👉 [Lista de Progressão e Tarefas](TASKS.md)
+
+![Progress](https://progress-bar.dev/20/?title=progresso)
+
 ## Funcionalidades Implementadas
 ### 1. Gestão de Pacientes
 - Cadastro (ID único automático) e visualização.
@@ -19,12 +25,12 @@ O sistema utiliza persistência de dados em arquivos.
 
 ### 3. Agendamento de Consultas
 - Agendamento com validação de data/hora.
-- [cite_start]Polimorfismo em tipos de consulta: Normal, Emergência, Retorno[cite: 32].
+- Polimorfismo em tipos de consulta: Normal, Emergência, Retorno.
 - Cancelamento e listagem.
 
 ### 4. Prontuários Médicos
 - Histórico de registros médicos por paciente.
-- [cite_start]Composição: O prontuário pertence exclusivamente ao paciente[cite: 40].
+- Composição: O prontuário pertence exclusivamente ao paciente.
 
 ### 5. Estatísticas
 - Relatórios quantitativos de pacientes, médicos e consultas.
