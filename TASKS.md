@@ -20,16 +20,16 @@ Fase inicial para estruturar o projeto e as classes principais.
 ## 2. Gestão de Pacientes
 Requisitos focados no módulo de pacientes.
 
-- [ ] **Classe `Paciente` (Herança de Pessoa)** 
-    - [ ] Implementar herança de `Pessoa`.
-    - [ ] Criar atributo estático (`static`) para geração automática de ID único.
-    - [ ] Implementar construtor e destrutor.
-- [ ] **Funcionalidades de Paciente**
-    - [ ] Cadastro de novos pacientes (com ID automático).
-    - [ ] Visualização de dados do paciente.
-    - [ ] Edição de dados demográficos (nome, idade, endereço, contato).
-    - [ ] Listagem de todos os pacientes cadastrados
-    - [ ] Remoção de paciente (Validar: só permitir se **não** tiver consultas agendadas).
+- [X] **Classe `Paciente` (Herança de Pessoa)** 
+    - [X] Implementar herança de `Pessoa`.
+    - [X] Criar atributo estático (`static`) para geração automática de ID único.
+    - [X] Implementar construtor e destrutor.
+- [X] **Funcionalidades de Paciente**
+    - [X] Cadastro de novos pacientes (com ID automático).
+    - [X] Visualização de dados do paciente.
+    - [X] Edição de dados demográficos (nome, idade, endereço, contato).
+    - [X] Listagem de todos os pacientes cadastrados
+    - [X] Remoção de paciente (Validar: só permitir se **não** tiver consultas agendadas).
 
 ## 3. Gestão de Médicos
 Requisitos focados no módulo de equipe médica.
