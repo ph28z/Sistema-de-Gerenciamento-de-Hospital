@@ -2,7 +2,7 @@
 
 ## Sobre o Projeto
 Este projeto visa desenvolver um sistema simplificado de gestão hospitalar via console, permitindo o cadastro de pacientes, médicos, agendamentos e prontuários médicos.
-O sistema utiliza persistência de dados em arquivos.
+O sistema utiliza persistência de dados em arquivos. 
 
 **Disciplina:** Programação Orientada a Objetos  
 **Data de Entrega:** 08/12/2025 
