@@ -2,6 +2,7 @@
 #define PACIENTE_H
 
 #include "Pessoa.h"
+#include "Prontuario.h"
 #include <vector>
 #include <string>
 
@@ -13,6 +14,10 @@ private:
     int idade;
     static int proximoID;
     vector<int> consultasAgendadas; 
+
+    // COMPOSIÇÃO: O Paciente TEM um prontuário dentro dele.
+    // Quando o Paciente for destruído, este objeto também será.
+    Prontuario prontuario;
 
 public:
     // Construtor
@@ -39,6 +44,10 @@ public:
     
     // Método adicional para exibir resumo em lista
     void exibirResumo() const;
+
+    // Métodos para delegar ações ao prontuário
+    void adicionarRegistroMedico(const string& data, const string& medico, const string& descricao, const string& prescricao = "");
+    void visualizarProntuario() const;
 };
 
 #endif 
