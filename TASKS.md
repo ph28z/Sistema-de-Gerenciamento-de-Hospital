@@ -63,13 +63,13 @@ Core do sistema: relacionamento entre médico e paciente.
 ## 5. Prontuários Médicos (Composição)
 Relação forte onde o prontuário pertence ao paciente.
 
-- [ ] **Estrutura do Prontuário**
-    - [ ] Criar classe `Registro` (Data, Médico, Descrição, Prescrição).
-    - [ ] Criar classe `Prontuario` contendo uma lista/vetor de Registros.
-    - [ ] Implementar **Composição**: O Prontuário deve ser instanciado dentro do Paciente e destruído junto com ele.
-- [ ] **Funcionalidades de Prontuário**
-    - [ ] Adicionar novo registro médico (após consulta concluída).
-    - [ ] Visualizar histórico completo de um paciente.
+- [X] **Estrutura do Prontuário**
+    - [X] Criar classe `Registro` (Data, Médico, Descrição, Prescrição).
+    - [X] Criar classe `Prontuario` contendo uma lista/vetor de Registros.
+    - [X] Implementar **Composição**: O Prontuário deve ser instanciado dentro do Paciente e destruído junto com ele.
+- [X] **Funcionalidades de Prontuário**
+    - [X] Adicionar novo registro médico (após consulta concluída).
+    - [X] Visualizar histórico completo de um paciente.
 
 ## 6. Sistema, Persistência e Estatísticas
 Interface e salvamento de dados.
