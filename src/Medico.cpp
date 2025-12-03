@@ -67,7 +67,7 @@ bool Medico::temConsultasAgendadas() const {
 
 // Implementação do método virtual puro de Pessoa
 void Medico::imprimirDados() const {
-    cout << "========== DADOS DO MÉDICO ==========" << endl;
+    cout << "========== DADOS DO MEDICO ==========" << endl;
     cout << "ID: " << id << endl;
     cout << "Nome: " << getNome() << endl;
     cout << "CRM: " << crm << endl;

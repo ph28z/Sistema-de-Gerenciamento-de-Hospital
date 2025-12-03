@@ -84,3 +84,13 @@ void Paciente::exibirResumo() const {
          << " | Idade: " << idade 
          << " | Consultas: " << consultasAgendadas.size() << endl;
 }
+
+// Novos métodos do Prontuário
+void Paciente::adicionarRegistroMedico(const string& data, const string& medico, const string& descricao, const string& prescricao) {
+    prontuario.adicionarRegistro(data, medico, descricao, prescricao);
+}
+
+void Paciente::visualizarProntuario() const {
+    cout << "Prontuario do Paciente: " << getNome() << endl;
+    prontuario.exibirHistorico();
+}
