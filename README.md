@@ -11,7 +11,7 @@ O sistema utiliza persistência de dados em arquivos.
 Para ver o detalhamento do que já foi feito e o que falta, acesse nossa:
 👉 [Lista de Progressão e Tarefas](TASKS.md)
 
-![Progresso](https://img.shields.io/badge/Progresso-60%25-brightgreen)
+![Progresso](https://img.shields.io/badge/Progresso-70%25-brightgreen)
 
 ## Funcionalidades Implementadas 
 ### 1. Gestão de Pacientes
