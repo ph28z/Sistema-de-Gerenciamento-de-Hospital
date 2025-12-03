@@ -1,6 +1,7 @@
 #include <iostream>
 #include "include/Paciente.h"
 #include "include/Medico.h"
+#include "include/Sistema.h"
 
 using namespace std;
 
@@ -77,21 +78,12 @@ void testarProntuario() {
 // --- MAIN PRINCIPAL ---
 
 int main() {
-    cout << "========================================" << endl;
-    cout << "   SISTEMA HOSPITALAR - BATERIA DE TESTES " << endl;
-    cout << "========================================" << endl;
+    // O construtor do Sistema já carrega os dados
+    Sistema sistema;
 
-    // Executa os testes modulares
-    testarPaciente();
-    testarMedico();
-    testarPolimorfismo();
+    // Inicia o loop do menu
+    sistema.iniciar();
 
-    // Executa o novo teste
-    testarProntuario();
-
-    cout << "\n========================================" << endl;
-    cout << "   TODOS OS TESTES FINALIZADOS          " << endl;
-    cout << "========================================" << endl;
-
+    // O destrutor do Sistema salvará os dados ao sair
     return 0;
 }

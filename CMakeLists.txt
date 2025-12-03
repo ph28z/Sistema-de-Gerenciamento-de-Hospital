@@ -20,4 +20,6 @@ add_executable(SistemaHospitalar main.cpp ${SOURCES}
         src/Registro.cpp
         include/Prontuario.h
         src/Prontuario.cpp
+        include/Sistema.h
+        src/Sistema.cpp
 )

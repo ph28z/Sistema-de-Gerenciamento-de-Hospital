@@ -97,3 +97,13 @@ void Medico::exibirResumo() const {
          << " | Especialidade: " << especialidade 
          << " | Consultas: " << consultasAgendadas.size() << endl;
 }
+
+void Medico::setId(int i) {
+    id = i;
+}
+
+void Medico::atualizarUltimoID(int id) {
+    if (id >= proximoID) {
+        proximoID = id + 1;
+    }
+}

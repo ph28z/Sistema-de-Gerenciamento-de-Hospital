@@ -43,6 +43,9 @@ public:
     
     // Método adicional para exibir resumo em lista
     void exibirResumo() const;
+
+    void setId(int id);
+    static void atualizarUltimoID(int id);
 };
 
 #endif //SISTEMAHOSPITALAR_MEDICO_H
