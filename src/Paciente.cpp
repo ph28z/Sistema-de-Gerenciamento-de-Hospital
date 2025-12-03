@@ -94,3 +94,13 @@ void Paciente::visualizarProntuario() const {
     cout << "Prontuario do Paciente: " << getNome() << endl;
     prontuario.exibirHistorico();
 }
+
+void Paciente::setId(int i) {
+    id = i;
+}
+
+void Paciente::atualizarUltimoID(int id) {
+    if (id >= proximoID) {
+        proximoID = id + 1;
+    }
+}

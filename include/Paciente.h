@@ -48,6 +48,9 @@ public:
     // Métodos para delegar ações ao prontuário
     void adicionarRegistroMedico(const string& data, const string& medico, const string& descricao, const string& prescricao = "");
     void visualizarProntuario() const;
+
+    void setId(int id); // Para carregar do arquivo
+    static void atualizarUltimoID(int id); // Para evitar duplicidade após carregar
 };
 
 #endif 
