@@ -74,18 +74,18 @@ Relação forte onde o prontuário pertence ao paciente.
 ## 6. Sistema, Persistência e Estatísticas
 Interface e salvamento de dados.
 
-- [ ] **Sistema Principal (Menu/Console)** 
-    - [ ] Criar menus de navegação para todas as funcionalidades acima.
-    - [ ] Classe controladora `SistemaHospitalar` ou `GerenteHospitalar`.
-- [ ] **Persistência de Dados (Arquivos)** 
-    - [ ] Salvar/Carregar lista de Pacientes em arquivo (`.txt` ou binário).
-    - [ ] Salvar/Carregar lista de Médicos.
-    - [ ] Salvar/Carregar Consultas.
-    - [ ] Salvar/Carregar Prontuários Médicos.
-- [ ] **Estatísticas e Relatórios** 
-    - [ ] Total de pacientes cadastrados.
-    - [ ] Total de médicos cadastrados.
-    - [ ] Total de consultas realizadas.
+- [X] **Sistema Principal (Menu/Console)** 
+    - [X] Criar menus de navegação para todas as funcionalidades acima.
+    - [X] Classe controladora `SistemaHospitalar` ou `GerenteHospitalar`.
+- [X] **Persistência de Dados (Arquivos)** 
+    - [X] Salvar/Carregar lista de Pacientes em arquivo (`.txt` ou binário).
+    - [X] Salvar/Carregar lista de Médicos.
+    - [X] Salvar/Carregar Consultas.
+    - [X] Salvar/Carregar Prontuários Médicos.
+- [X] **Estatísticas e Relatórios** 
+    - [X] Total de pacientes cadastrados.
+    - [X] Total de médicos cadastrados.
+    - [X] Total de consultas realizadas.
     - [ ] Contagem de consultas por especialização.
 
 ## 7. Entregáveis e Finalização
