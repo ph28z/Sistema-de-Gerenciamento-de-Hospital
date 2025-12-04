@@ -1,3 +1,5 @@
+
+#include <map>  // Para estatísticas por especialização
 #include "../include/Sistema.h"
 #include "../include/ExcecaoConsulta.h"
 #include <iostream>
@@ -616,10 +618,290 @@ void Sistema::carregarDados() {
     }
 }
 
+void Sistema::editarPaciente() {
+    int id;
+    cout << "ID do Paciente: "; cin >> id;
+    cin.ignore();
+    
+    Paciente* pac = buscarPacientePorId(id);
+    if (!pac) {
+        cout << "Paciente nao encontrado!" << endl;
+        return;
+    }
+    
+    pac->imprimirDados();
+    
+    cout << "\nO que deseja editar?" << endl;
+    cout << "1. Nome" << endl;
+    cout << "2. Endereco" << endl;
+    cout << "3. Telefone" << endl;
+    cout << "4. Idade" << endl;
+    cout << "Opcao: ";
+    
+    int opcao;
+    cin >> opcao;
+    cin.ignore();
+    
+    switch (opcao) {
+        case 1: {
+            string novoNome;
+            cout << "Novo nome: "; getline(cin, novoNome);
+            pac->setNome(novoNome);
+            cout << "Nome atualizado!" << endl;
+            break;
+        }
+        case 2: {
+            string novoEndereco;
+            cout << "Novo endereco: "; getline(cin, novoEndereco);
+            pac->setEndereco(novoEndereco);
+            cout << "Endereco atualizado!" << endl;
+            break;
+        }
+        case 3: {
+            string novoTelefone;
+            cout << "Novo telefone: "; getline(cin, novoTelefone);
+            pac->setTelefone(novoTelefone);
+            cout << "Telefone atualizado!" << endl;
+            break;
+        }
+        case 4: {
+            int novaIdade;
+            cout << "Nova idade: "; cin >> novaIdade;
+            pac->setIdade(novaIdade);
+            cout << "Idade atualizada!" << endl;
+            break;
+        }
+        default:
+            cout << "Opcao invalida!" << endl;
+    }
+}
+
+// ============================================================================
+// REMOVER PACIENTE (FALTANDO)
+// ============================================================================
+void Sistema::removerPaciente() {
+    int id;
+    cout << "ID do Paciente: "; cin >> id;
+    
+    Paciente* pac = buscarPacientePorId(id);
+    if (!pac) {
+        cout << "Paciente nao encontrado!" << endl;
+        return;
+    }
+    
+    // VALIDAÇÃO: Verificar se tem consultas agendadas
+    if (pac->temConsultasAgendadas()) {
+        cout << "ERRO: Nao e possivel remover paciente com consultas agendadas!" << endl;
+        cout << "Total de consultas: " << pac->getNumConsultas() << endl;
+        return;
+    }
+    
+    pac->imprimirDados();
+    
+    cout << "\nTem certeza que deseja remover este paciente? (S/N): ";
+    char confirmacao;
+    cin >> confirmacao;
+    
+    if (confirmacao == 'S' || confirmacao == 's') {
+        auto it = find(pacientes.begin(), pacientes.end(), pac);
+        if (it != pacientes.end()) {
+            delete *it;
+            pacientes.erase(it);
+            cout << "Paciente removido com sucesso!" << endl;
+        }
+    } else {
+        cout << "Remocao cancelada." << endl;
+    }
+}
+
+// ============================================================================
+// ATUALIZAR MENU PACIENTES (adicionar opções 3 e 4)
+// ============================================================================
+void Sistema::exibirMenuPacientes() {
+    int opcao = 0;
+    do {
+        cout << "\n--- MENU PACIENTES ---" << endl;
+        cout << "1. Cadastrar Paciente" << endl;
+        cout << "2. Listar Pacientes" << endl;
+        cout << "3. Editar Paciente" << endl;         // NOVO
+        cout << "4. Remover Paciente" << endl;        // NOVO
+        cout << "0. Voltar" << endl;
+        cout << "Opcao: ";
+        cin >> opcao;
+        cin.ignore();
+
+        switch (opcao) {
+            case 1: cadastrarPaciente(); break;
+            case 2: listarPacientes(); break;
+            case 3: editarPaciente(); break;          // NOVO
+            case 4: removerPaciente(); break;         // NOVO
+            case 0: break;
+            default: cout << "Opcao invalida!" << endl;
+        }
+    } while (opcao != 0);
+}
+
+// ============================================================================
+// ESTATÍSTICAS POR ESPECIALIZAÇÃO (FALTANDO)
+// ============================================================================
+void Sistema::exibirEstatisticas() {
+    cout << "\n=== ESTATISTICAS DO SISTEMA ===" << endl;
+    cout << "Total de Pacientes: " << pacientes.size() << endl;
+    cout << "Total de Medicos: " << medicos.size() << endl;
+    cout << "Total de Consultas: " << consultas.size() << endl;
+    
+    int agendadas = 0, realizadas = 0, canceladas = 0;
+    for (const auto& c : consultas) {
+        if (c->getStatus() == "Agendada") agendadas++;
+        else if (c->getStatus() == "Realizada") realizadas++;
+        else if (c->getStatus() == "Cancelada") canceladas++;
+    }
+    
+    cout << "  - Agendadas: " << agendadas << endl;
+    cout << "  - Realizadas: " << realizadas << endl;
+    cout << "  - Canceladas: " << canceladas << endl;
+    
+    // NOVO: Estatísticas por especialização
+    cout << "\n--- CONSULTAS POR ESPECIALIZACAO ---" << endl;
+    
+    map<string, int> consultasPorEspecializacao;
+    
+    for (const auto& c : consultas) {
+        string esp = c->getMedico()->getEspecialidade();
+        consultasPorEspecializacao[esp]++;
+    }
+    
+    if (consultasPorEspecializacao.empty()) {
+        cout << "Nenhuma consulta registrada." << endl;
+    } else {
+        for (const auto& par : consultasPorEspecializacao) {
+            cout << "  " << par.first << ": " << par.second << " consulta(s)" << endl;
+        }
+    }
+    
+    cout << "===============================" << endl;
+}
+
+// ============================================================================
+// PERSISTÊNCIA DE CONSULTAS (FALTANDO - Implementação completa)
+// ============================================================================
 void Sistema::salvarConsultas() {
-    // TODO: Implementar persistência de consultas
+    string caminhoBase = obterCaminhoData();
+    
+    ofstream arqCon(caminhoBase + "/consultas.txt");
+    if (!arqCon.is_open()) return;
+    
+    arqCon << consultas.size() << endl;
+    
+    for (const auto& c : consultas) {
+        // Salvar tipo (1=Normal, 2=Emergencia, 3=Retorno)
+        string tipo = c->getTipo();
+        int tipoInt = 1;
+        if (tipo == "Emergencia") tipoInt = 2;
+        else if (tipo == "Retorno") tipoInt = 3;
+        
+        arqCon << c->getId() << endl;
+        arqCon << tipoInt << endl;
+        arqCon << c->getPaciente()->getId() << endl;
+        arqCon << c->getMedico()->getId() << endl;
+        arqCon << c->getData() << endl;
+        arqCon << c->getHora() << endl;
+        arqCon << c->getDuracao() << endl;
+        arqCon << c->getStatus() << endl;
+        
+        // Dados específicos por tipo
+        if (tipoInt == 1) { // ConsultaNormal
+            ConsultaNormal* cn = dynamic_cast<ConsultaNormal*>(c);
+            if (cn) {
+                arqCon << cn->getMotivoConsulta() << endl;
+            } else {
+                arqCon << "" << endl;
+            }
+        } else if (tipoInt == 2) { // Emergencia
+            Emergencia* em = dynamic_cast<Emergencia*>(c);
+            if (em) {
+                arqCon << em->getNivelGravidade() << endl;
+                arqCon << em->getDescricaoEmergencia() << endl;
+            } else {
+                arqCon << "3" << endl;
+                arqCon << "" << endl;
+            }
+        } else if (tipoInt == 3) { // Retorno
+            Retorno* ret = dynamic_cast<Retorno*>(c);
+            if (ret) {
+                arqCon << ret->getIdConsultaOriginal() << endl;
+                arqCon << ret->getObservacoes() << endl;
+            } else {
+                arqCon << "0" << endl;
+                arqCon << "" << endl;
+            }
+        }
+    }
+    
+    arqCon.close();
 }
 
 void Sistema::carregarConsultas() {
-    // TODO: Implementar carregamento de consultas
+    string caminhoBase = obterCaminhoData();
+    
+    ifstream arqCon(caminhoBase + "/consultas.txt");
+    if (!arqCon.is_open()) return;
+    
+    int qtd;
+    if (arqCon >> qtd) {
+        arqCon.ignore();
+        
+        for (int i = 0; i < qtd; i++) {
+            int id, tipo, idPac, idMed, duracao;
+            string data, hora, status;
+            
+            arqCon >> id; arqCon.ignore();
+            arqCon >> tipo; arqCon.ignore();
+            arqCon >> idPac; arqCon.ignore();
+            arqCon >> idMed; arqCon.ignore();
+            getline(arqCon, data);
+            getline(arqCon, hora);
+            arqCon >> duracao; arqCon.ignore();
+            getline(arqCon, status);
+            
+            Paciente* pac = buscarPacientePorId(idPac);
+            Medico* med = buscarMedicoPorId(idMed);
+            
+            if (!pac || !med) continue;
+            
+            Consulta* consulta = nullptr;
+            
+            try {
+                if (tipo == 1) { // Normal
+                    string motivo;
+                    getline(arqCon, motivo);
+                    consulta = new ConsultaNormal(pac, med, data, hora, motivo);
+                } else if (tipo == 2) { // Emergencia
+                    int nivel;
+                    string desc;
+                    arqCon >> nivel; arqCon.ignore();
+                    getline(arqCon, desc);
+                    consulta = new Emergencia(pac, med, data, hora, nivel, desc);
+                } else if (tipo == 3) { // Retorno
+                    int idOrig;
+                    string obs;
+                    arqCon >> idOrig; arqCon.ignore();
+                    getline(arqCon, obs);
+                    consulta = new Retorno(pac, med, data, hora, idOrig, obs);
+                }
+                
+                if (consulta) {
+                    consulta->setId(id);
+                    consulta->setStatus(status);
+                    consultas.push_back(consulta);
+                    Consulta::atualizarUltimoID(id);
+                }
+            } catch (...) {
+                // Ignora consultas com erro
+                continue;
+            }
+        }
+    }
+    
+    arqCon.close();
 }
