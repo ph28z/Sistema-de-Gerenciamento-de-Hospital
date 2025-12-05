@@ -8,14 +8,13 @@
 #include "Medico.h"
 #include "Consulta.h"
 
-
 using namespace std;
 
 class Sistema {
 private:
     vector<Paciente*> pacientes;
     vector<Medico*> medicos;
-    vector<Consulta*> consultas;  
+    vector<Consulta*> consultas;
 
 public:
     Sistema();
@@ -32,13 +31,14 @@ public:
     // Gestão de Pacientes
     void cadastrarPaciente();
     void listarPacientes();
+    void visualizarPaciente();  // NOVO
     void editarPaciente();
     void removerPaciente();
 
     // Gestão de Médicos
     void cadastrarMedico();
-    void listarMedicos();                              // ✅ Já existe
-    void buscarMedicosPorEspecializacao();             // ✅ NOVO - Requisito
+    void listarMedicos();
+    void buscarMedicosPorEspecializacao();
     
     // Gestão de Consultas
     void agendarConsulta();
@@ -57,8 +57,8 @@ public:
     // Persistência
     void salvarDados();
     void carregarDados();
-    void salvarConsultas();     
-    void carregarConsultas();   
+    void salvarConsultas();
+    void carregarConsultas();
 };
 
 #endif //SISTEMAHOSPITALAR_SISTEMA_H
