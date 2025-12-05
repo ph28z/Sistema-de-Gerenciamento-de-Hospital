@@ -1,16 +1,15 @@
-
-#include <map>  // Para estatísticas por especialização
 #include "../include/Sistema.h"
 #include "../include/ExcecaoConsulta.h"
+#include "../include/Consulta.h"
 #include <iostream>
 #include <limits>
 #include <algorithm>
 #include <iomanip>
 #include <sys/stat.h>
+#include <map>
 
 using namespace std;
 
-// Função auxiliar para verificar se diretório existe (compatível com C++11)
 bool diretorioExiste(const string& caminho) {
     struct stat info;
     if (stat(caminho.c_str(), &info) != 0) {
@@ -19,7 +18,6 @@ bool diretorioExiste(const string& caminho) {
     return (info.st_mode & S_IFDIR) != 0;
 }
 
-// Função auxiliar para criar diretório (Windows)
 void criarDiretorio(const string& caminho) {
     #ifdef _WIN32
         system(("mkdir " + caminho + " 2>nul").c_str());
@@ -28,14 +26,11 @@ void criarDiretorio(const string& caminho) {
     #endif
 }
 
-// Função auxiliar para obter caminho do diretório data
 string obterCaminhoData() {
     string caminho = "data";
-    
     if (!diretorioExiste(caminho)) {
         criarDiretorio(caminho);
     }
-    
     return caminho;
 }
 
@@ -98,6 +93,9 @@ void Sistema::exibirMenuPacientes() {
         cout << "\n--- MENU PACIENTES ---" << endl;
         cout << "1. Cadastrar Paciente" << endl;
         cout << "2. Listar Pacientes" << endl;
+        cout << "3. Visualizar Paciente" << endl;
+        cout << "4. Editar Paciente" << endl;
+        cout << "5. Remover Paciente" << endl;
         cout << "0. Voltar" << endl;
         cout << "Opcao: ";
         cin >> opcao;
@@ -106,10 +104,36 @@ void Sistema::exibirMenuPacientes() {
         switch (opcao) {
             case 1: cadastrarPaciente(); break;
             case 2: listarPacientes(); break;
+            case 3: visualizarPaciente(); break;
+            case 4: editarPaciente(); break;
+            case 5: removerPaciente(); break;
             case 0: break;
             default: cout << "Opcao invalida!" << endl;
         }
     } while (opcao != 0);
+}
+
+void Sistema::visualizarPaciente() {
+    int id;
+    cout << "ID do Paciente: "; cin >> id;
+    cin.ignore();
+    
+    Paciente* pac = buscarPacientePorId(id);
+    if (!pac) {
+        cout << "Paciente nao encontrado!" << endl;
+        return;
+    }
+    
+    pac->imprimirDados();
+    
+    cout << "\nDeseja visualizar o prontuario? (S/N): ";
+    char opcao;
+    cin >> opcao;
+    cin.ignore();
+    
+    if (opcao == 'S' || opcao == 's') {
+        pac->visualizarProntuario();
+    }
 }
 
 void Sistema::cadastrarPaciente() {
@@ -134,6 +158,98 @@ void Sistema::listarPacientes() {
     cout << "\n--- LISTA DE PACIENTES ---" << endl;
     for (const auto& p : pacientes) {
         p->exibirResumo();
+    }
+}
+
+void Sistema::editarPaciente() {
+    int id;
+    cout << "ID do Paciente: "; cin >> id;
+    cin.ignore();
+    
+    Paciente* pac = buscarPacientePorId(id);
+    if (!pac) {
+        cout << "Paciente nao encontrado!" << endl;
+        return;
+    }
+    
+    pac->imprimirDados();
+    
+    cout << "\nO que deseja editar?" << endl;
+    cout << "1. Nome" << endl;
+    cout << "2. Endereco" << endl;
+    cout << "3. Telefone" << endl;
+    cout << "4. Idade" << endl;
+    cout << "Opcao: ";
+    
+    int opcao;
+    cin >> opcao;
+    cin.ignore();
+    
+    switch (opcao) {
+        case 1: {
+            string novoNome;
+            cout << "Novo nome: "; getline(cin, novoNome);
+            pac->setNome(novoNome);
+            cout << "Nome atualizado!" << endl;
+            break;
+        }
+        case 2: {
+            string novoEndereco;
+            cout << "Novo endereco: "; getline(cin, novoEndereco);
+            pac->setEndereco(novoEndereco);
+            cout << "Endereco atualizado!" << endl;
+            break;
+        }
+        case 3: {
+            string novoTelefone;
+            cout << "Novo telefone: "; getline(cin, novoTelefone);
+            pac->setTelefone(novoTelefone);
+            cout << "Telefone atualizado!" << endl;
+            break;
+        }
+        case 4: {
+            int novaIdade;
+            cout << "Nova idade: "; cin >> novaIdade;
+            pac->setIdade(novaIdade);
+            cout << "Idade atualizada!" << endl;
+            break;
+        }
+        default:
+            cout << "Opcao invalida!" << endl;
+    }
+}
+
+void Sistema::removerPaciente() {
+    int id;
+    cout << "ID do Paciente: "; cin >> id;
+    
+    Paciente* pac = buscarPacientePorId(id);
+    if (!pac) {
+        cout << "Paciente nao encontrado!" << endl;
+        return;
+    }
+    
+    if (pac->temConsultasAgendadas()) {
+        cout << "ERRO: Nao e possivel remover paciente com consultas agendadas!" << endl;
+        cout << "Total de consultas: " << pac->getNumConsultas() << endl;
+        return;
+    }
+    
+    pac->imprimirDados();
+    
+    cout << "\nTem certeza que deseja remover este paciente? (S/N): ";
+    char confirmacao;
+    cin >> confirmacao;
+    
+    if (confirmacao == 'S' || confirmacao == 's') {
+        auto it = find(pacientes.begin(), pacientes.end(), pac);
+        if (it != pacientes.end()) {
+            delete *it;
+            pacientes.erase(it);
+            cout << "Paciente removido com sucesso!" << endl;
+        }
+    } else {
+        cout << "Remocao cancelada." << endl;
     }
 }
 
@@ -531,6 +647,24 @@ void Sistema::exibirEstatisticas() {
     cout << "  - Agendadas: " << agendadas << endl;
     cout << "  - Realizadas: " << realizadas << endl;
     cout << "  - Canceladas: " << canceladas << endl;
+    
+    cout << "\n--- CONSULTAS POR ESPECIALIZACAO ---" << endl;
+    
+    map<string, int> consultasPorEspecializacao;
+    
+    for (const auto& c : consultas) {
+        string esp = c->getMedico()->getEspecialidade();
+        consultasPorEspecializacao[esp]++;
+    }
+    
+    if (consultasPorEspecializacao.empty()) {
+        cout << "Nenhuma consulta registrada." << endl;
+    } else {
+        for (const auto& par : consultasPorEspecializacao) {
+            cout << "  " << par.first << ": " << par.second << " consulta(s)" << endl;
+        }
+    }
+    
     cout << "===============================" << endl;
 }
 
@@ -618,173 +752,6 @@ void Sistema::carregarDados() {
     }
 }
 
-void Sistema::editarPaciente() {
-    int id;
-    cout << "ID do Paciente: "; cin >> id;
-    cin.ignore();
-    
-    Paciente* pac = buscarPacientePorId(id);
-    if (!pac) {
-        cout << "Paciente nao encontrado!" << endl;
-        return;
-    }
-    
-    pac->imprimirDados();
-    
-    cout << "\nO que deseja editar?" << endl;
-    cout << "1. Nome" << endl;
-    cout << "2. Endereco" << endl;
-    cout << "3. Telefone" << endl;
-    cout << "4. Idade" << endl;
-    cout << "Opcao: ";
-    
-    int opcao;
-    cin >> opcao;
-    cin.ignore();
-    
-    switch (opcao) {
-        case 1: {
-            string novoNome;
-            cout << "Novo nome: "; getline(cin, novoNome);
-            pac->setNome(novoNome);
-            cout << "Nome atualizado!" << endl;
-            break;
-        }
-        case 2: {
-            string novoEndereco;
-            cout << "Novo endereco: "; getline(cin, novoEndereco);
-            pac->setEndereco(novoEndereco);
-            cout << "Endereco atualizado!" << endl;
-            break;
-        }
-        case 3: {
-            string novoTelefone;
-            cout << "Novo telefone: "; getline(cin, novoTelefone);
-            pac->setTelefone(novoTelefone);
-            cout << "Telefone atualizado!" << endl;
-            break;
-        }
-        case 4: {
-            int novaIdade;
-            cout << "Nova idade: "; cin >> novaIdade;
-            pac->setIdade(novaIdade);
-            cout << "Idade atualizada!" << endl;
-            break;
-        }
-        default:
-            cout << "Opcao invalida!" << endl;
-    }
-}
-
-// ============================================================================
-// REMOVER PACIENTE (FALTANDO)
-// ============================================================================
-void Sistema::removerPaciente() {
-    int id;
-    cout << "ID do Paciente: "; cin >> id;
-    
-    Paciente* pac = buscarPacientePorId(id);
-    if (!pac) {
-        cout << "Paciente nao encontrado!" << endl;
-        return;
-    }
-    
-    // VALIDAÇÃO: Verificar se tem consultas agendadas
-    if (pac->temConsultasAgendadas()) {
-        cout << "ERRO: Nao e possivel remover paciente com consultas agendadas!" << endl;
-        cout << "Total de consultas: " << pac->getNumConsultas() << endl;
-        return;
-    }
-    
-    pac->imprimirDados();
-    
-    cout << "\nTem certeza que deseja remover este paciente? (S/N): ";
-    char confirmacao;
-    cin >> confirmacao;
-    
-    if (confirmacao == 'S' || confirmacao == 's') {
-        auto it = find(pacientes.begin(), pacientes.end(), pac);
-        if (it != pacientes.end()) {
-            delete *it;
-            pacientes.erase(it);
-            cout << "Paciente removido com sucesso!" << endl;
-        }
-    } else {
-        cout << "Remocao cancelada." << endl;
-    }
-}
-
-// ============================================================================
-// ATUALIZAR MENU PACIENTES (adicionar opções 3 e 4)
-// ============================================================================
-void Sistema::exibirMenuPacientes() {
-    int opcao = 0;
-    do {
-        cout << "\n--- MENU PACIENTES ---" << endl;
-        cout << "1. Cadastrar Paciente" << endl;
-        cout << "2. Listar Pacientes" << endl;
-        cout << "3. Editar Paciente" << endl;         // NOVO
-        cout << "4. Remover Paciente" << endl;        // NOVO
-        cout << "0. Voltar" << endl;
-        cout << "Opcao: ";
-        cin >> opcao;
-        cin.ignore();
-
-        switch (opcao) {
-            case 1: cadastrarPaciente(); break;
-            case 2: listarPacientes(); break;
-            case 3: editarPaciente(); break;          // NOVO
-            case 4: removerPaciente(); break;         // NOVO
-            case 0: break;
-            default: cout << "Opcao invalida!" << endl;
-        }
-    } while (opcao != 0);
-}
-
-// ============================================================================
-// ESTATÍSTICAS POR ESPECIALIZAÇÃO (FALTANDO)
-// ============================================================================
-void Sistema::exibirEstatisticas() {
-    cout << "\n=== ESTATISTICAS DO SISTEMA ===" << endl;
-    cout << "Total de Pacientes: " << pacientes.size() << endl;
-    cout << "Total de Medicos: " << medicos.size() << endl;
-    cout << "Total de Consultas: " << consultas.size() << endl;
-    
-    int agendadas = 0, realizadas = 0, canceladas = 0;
-    for (const auto& c : consultas) {
-        if (c->getStatus() == "Agendada") agendadas++;
-        else if (c->getStatus() == "Realizada") realizadas++;
-        else if (c->getStatus() == "Cancelada") canceladas++;
-    }
-    
-    cout << "  - Agendadas: " << agendadas << endl;
-    cout << "  - Realizadas: " << realizadas << endl;
-    cout << "  - Canceladas: " << canceladas << endl;
-    
-    // NOVO: Estatísticas por especialização
-    cout << "\n--- CONSULTAS POR ESPECIALIZACAO ---" << endl;
-    
-    map<string, int> consultasPorEspecializacao;
-    
-    for (const auto& c : consultas) {
-        string esp = c->getMedico()->getEspecialidade();
-        consultasPorEspecializacao[esp]++;
-    }
-    
-    if (consultasPorEspecializacao.empty()) {
-        cout << "Nenhuma consulta registrada." << endl;
-    } else {
-        for (const auto& par : consultasPorEspecializacao) {
-            cout << "  " << par.first << ": " << par.second << " consulta(s)" << endl;
-        }
-    }
-    
-    cout << "===============================" << endl;
-}
-
-// ============================================================================
-// PERSISTÊNCIA DE CONSULTAS (FALTANDO - Implementação completa)
-// ============================================================================
 void Sistema::salvarConsultas() {
     string caminhoBase = obterCaminhoData();
     
@@ -794,7 +761,6 @@ void Sistema::salvarConsultas() {
     arqCon << consultas.size() << endl;
     
     for (const auto& c : consultas) {
-        // Salvar tipo (1=Normal, 2=Emergencia, 3=Retorno)
         string tipo = c->getTipo();
         int tipoInt = 1;
         if (tipo == "Emergencia") tipoInt = 2;
@@ -809,31 +775,24 @@ void Sistema::salvarConsultas() {
         arqCon << c->getDuracao() << endl;
         arqCon << c->getStatus() << endl;
         
-        // Dados específicos por tipo
-        if (tipoInt == 1) { // ConsultaNormal
+        if (tipoInt == 1) {
             ConsultaNormal* cn = dynamic_cast<ConsultaNormal*>(c);
-            if (cn) {
-                arqCon << cn->getMotivoConsulta() << endl;
-            } else {
-                arqCon << "" << endl;
-            }
-        } else if (tipoInt == 2) { // Emergencia
+            arqCon << (cn ? cn->getMotivoConsulta() : "") << endl;
+        } else if (tipoInt == 2) {
             Emergencia* em = dynamic_cast<Emergencia*>(c);
             if (em) {
                 arqCon << em->getNivelGravidade() << endl;
                 arqCon << em->getDescricaoEmergencia() << endl;
             } else {
-                arqCon << "3" << endl;
-                arqCon << "" << endl;
+                arqCon << "3" << endl << "" << endl;
             }
-        } else if (tipoInt == 3) { // Retorno
+        } else if (tipoInt == 3) {
             Retorno* ret = dynamic_cast<Retorno*>(c);
             if (ret) {
                 arqCon << ret->getIdConsultaOriginal() << endl;
                 arqCon << ret->getObservacoes() << endl;
             } else {
-                arqCon << "0" << endl;
-                arqCon << "" << endl;
+                arqCon << "0" << endl << "" << endl;
             }
         }
     }
@@ -872,17 +831,17 @@ void Sistema::carregarConsultas() {
             Consulta* consulta = nullptr;
             
             try {
-                if (tipo == 1) { // Normal
+                if (tipo == 1) {
                     string motivo;
                     getline(arqCon, motivo);
                     consulta = new ConsultaNormal(pac, med, data, hora, motivo);
-                } else if (tipo == 2) { // Emergencia
+                } else if (tipo == 2) {
                     int nivel;
                     string desc;
                     arqCon >> nivel; arqCon.ignore();
                     getline(arqCon, desc);
                     consulta = new Emergencia(pac, med, data, hora, nivel, desc);
-                } else if (tipo == 3) { // Retorno
+                } else if (tipo == 3) {
                     int idOrig;
                     string obs;
                     arqCon >> idOrig; arqCon.ignore();
@@ -897,7 +856,6 @@ void Sistema::carregarConsultas() {
                     Consulta::atualizarUltimoID(id);
                 }
             } catch (...) {
-                // Ignora consultas com erro
                 continue;
             }
         }
