@@ -33,13 +33,13 @@ string obterCaminhoData() {
 Sistema::Sistema() {
     carregarDados();
     carregarConsultas();
-    carregarProntuarios(); // <--- Carrega histórico médico
+    carregarProntuarios();
 }
 
 Sistema::~Sistema() {
     salvarDados();
     salvarConsultas();
-    salvarProntuarios(); // <--- Salva histórico médico
+    salvarProntuarios();
 
     for (auto p : pacientes) delete p;
     for (auto m : medicos) delete m;
@@ -49,7 +49,7 @@ Sistema::~Sistema() {
     consultas.clear();
 }
 
-// --- MENUS (Código padrão mantido) ---
+// --- MENUS ---
 void Sistema::iniciar() {
     int opcao = 0;
     do {
@@ -150,26 +150,49 @@ void Sistema::editarPaciente() {
     else cout << "Opcao invalida!" << endl;
 }
 
+// --- MÉTODO ATUALIZADO COM TRY-CATCH ---
 void Sistema::removerPaciente() {
-    int id;
-    cout << "ID do Paciente: "; cin >> id;
-    Paciente* pac = buscarPacientePorId(id);
-    if (!pac) { cout << "Paciente nao encontrado!" << endl; return; }
+    try {
+        int id;
+        cout << "ID do Paciente: "; cin >> id;
 
-    if (pac->temConsultasAgendadas()) {
-        cout << "ERRO: Paciente possui consultas agendadas!" << endl;
-        return;
-    }
+        Paciente* pac = buscarPacientePorId(id);
+        if (!pac) {
+            // Lança exceção para paciente inexistente
+            throw ExcecaoConsulta("Paciente nao encontrado!", ExcecaoConsulta::PACIENTE_INEXISTENTE);
+        }
 
-    auto it = find(pacientes.begin(), pacientes.end(), pac);
-    if (it != pacientes.end()) {
-        delete *it;
-        pacientes.erase(it);
-        cout << "Paciente removido." << endl;
+        // Verifica se tem consultas e lança a exceção correta
+        if (pac->temConsultasAgendadas()) {
+            throw ExcecaoConsulta("Nao e possivel remover: Paciente possui consultas pendentes!",
+                                  ExcecaoConsulta::REMOCAO_PROIBIDA);
+        }
+
+        pac->imprimirDados();
+
+        cout << "\nTem certeza que deseja remover este paciente? (S/N): ";
+        char confirmacao;
+        cin >> confirmacao;
+
+        if (confirmacao == 'S' || confirmacao == 's') {
+            auto it = find(pacientes.begin(), pacientes.end(), pac);
+            if (it != pacientes.end()) {
+                delete *it;
+                pacientes.erase(it);
+                cout << "Paciente removido com sucesso!" << endl;
+            }
+        } else {
+            cout << "Remocao cancelada." << endl;
+        }
+
+    } catch (const ExcecaoConsulta& e) {
+        cout << "\nERRO: " << e.getMensagemCompleta() << endl;
+    } catch (...) {
+        cout << "\nERRO desconhecido ao remover paciente." << endl;
     }
 }
+// ---------------------------------------
 
-// --- MEDICOS ---
 void Sistema::exibirMenuMedicos() {
     int opcao = 0;
     do {
@@ -211,10 +234,12 @@ void Sistema::listarMedicos() {
 void Sistema::buscarMedicosPorEspecializacao() {
     string esp;
     cout << "Digite a especializacao: "; getline(cin, esp);
-    // (Lógica simplificada de busca por substring mantida da sua versão anterior)
     bool achou = false;
     for(const auto& m : medicos) {
-        if(m->getEspecialidade().find(esp) != string::npos) {
+        // Conversão simples para minusculo na busca (opcional, mas ajuda)
+        string mEsp = m->getEspecialidade();
+        // Nota: para uma busca case-insensitive real, seria necessário transformar ambas as strings
+        if(mEsp.find(esp) != string::npos) {
             m->exibirResumo(); achou = true;
         }
     }
@@ -286,6 +311,8 @@ void Sistema::agendarConsulta() {
         consultas.push_back(c);
         cout << "Agendado! ID: " << c->getId() << " | Valor: R$ " << c->calcularValor() << endl;
 
+    } catch (const ExcecaoConsulta& e) {
+        cout << "ERRO: " << e.getMensagemCompleta() << endl;
     } catch (const exception& e) {
         cout << "ERRO: " << e.what() << endl;
     }
@@ -307,15 +334,24 @@ void Sistema::listarConsultasPorMedico() {
 }
 
 void Sistema::modificarConsulta() {
-    int id; cout << "ID Consulta: "; cin >> id; cin.ignore();
-    Consulta* c = buscarConsultaPorId(id);
-    if(c) {
+    try {
+        int id; cout << "ID Consulta: "; cin >> id; cin.ignore();
+        Consulta* c = buscarConsultaPorId(id);
+        if(!c) throw ExcecaoConsulta("Consulta nao encontrada!", ExcecaoConsulta::CONSULTA_INEXISTENTE);
+
         string d, h;
         cout << "Nova Data: "; getline(cin, d);
         cout << "Nova Hora: "; getline(cin, h);
+
+        if (verificarConflitoHorario(c->getMedico(), d, h)) {
+             throw ExcecaoConsulta("Conflito de horario!", ExcecaoConsulta::CONFLITO_HORARIO);
+        }
+
         c->setData(d); c->setHora(h);
         cout << "Atualizado!" << endl;
-    } else cout << "Nao encontrada." << endl;
+    } catch (const ExcecaoConsulta& e) {
+        cout << "ERRO: " << e.getMensagemCompleta() << endl;
+    }
 }
 
 void Sistema::cancelarConsulta() {
