@@ -15,42 +15,39 @@ private:
     static int proximoID;
     vector<int> consultasAgendadas; 
 
-    // COMPOSIÇÃO: O Paciente TEM um prontuário dentro dele.
-    // Quando o Paciente for destruído, este objeto também será.
+    // Composição: O Paciente TEM um prontuário
     Prontuario prontuario;
 
 public:
-    // Construtor
     Paciente(const string& nome, const string& endereco, const string& telefone, int idade);
-    
-    // Destrutor
     ~Paciente();
-    
-    // Getters
+
+    // Getters e Setters
     int getId() const;
     int getIdade() const;
     int getNumConsultas() const;
-    
-    // Setter
     void setIdade(int i);
-    
+
     // Gerenciamento de consultas
     void adicionarConsulta(int idConsulta);
     void removerConsulta(int idConsulta);
     bool temConsultasAgendadas() const;
-    
-    // Implementação do método virtual puro de Pessoa
+
+    // Métodos virtuais e auxiliares
     void imprimirDados() const override;
-    
-    // Método adicional para exibir resumo em lista
     void exibirResumo() const;
 
-    // Métodos para delegar ações ao prontuário
+    // Prontuário (Lógica de Negócio)
     void adicionarRegistroMedico(const string& data, const string& medico, const string& descricao, const string& prescricao = "");
     void visualizarProntuario() const;
 
-    void setId(int id); // Para carregar do arquivo
-    static void atualizarUltimoID(int id); // Para evitar duplicidade após carregar
+    // Métodos Estáticos e de Sistema
+    void setId(int id);
+    static void atualizarUltimoID(int id);
+
+
+    const Prontuario& getProntuario() const;
+    Prontuario& getProntuarioModificavel();
 };
 
-#endif 
+#endif
