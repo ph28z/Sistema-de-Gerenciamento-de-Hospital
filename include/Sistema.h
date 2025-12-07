@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <string>
 #include "Paciente.h"
 #include "Medico.h"
 #include "Consulta.h"
@@ -12,15 +13,17 @@ using namespace std;
 
 class Sistema {
 private:
+    // Vetores que armazenam todos os dados do sistema
     vector<Paciente*> pacientes;
     vector<Medico*> medicos;
     vector<Consulta*> consultas;
 
 public:
+    // Construtor e Destrutor
     Sistema();
     ~Sistema();
 
-    // Menus e Controle
+    // --- MENUS ---
     void iniciar();
     void exibirMenuPrincipal();
     void exibirMenuPacientes();
@@ -28,19 +31,19 @@ public:
     void exibirMenuConsultas();
     void exibirEstatisticas();
 
-    // Gestão de Pacientes
+    // --- GESTÃO DE PACIENTES ---
     void cadastrarPaciente();
     void listarPacientes();
     void visualizarPaciente();
     void editarPaciente();
     void removerPaciente();
 
-    // Gestão de Médicos
+    // --- GESTÃO DE MÉDICOS ---
     void cadastrarMedico();
     void listarMedicos();
     void buscarMedicosPorEspecializacao();
 
-    // Gestão de Consultas
+    // --- GESTÃO DE CONSULTAS ---
     void agendarConsulta();
     void listarConsultas();
     void listarConsultasPorPaciente();
@@ -48,19 +51,21 @@ public:
     void modificarConsulta();
     void cancelarConsulta();
 
-    // Auxiliares
+    // --- MÉTODOS AUXILIARES (Busca e Validação) ---
     Paciente* buscarPacientePorId(int id);
     Medico* buscarMedicoPorId(int id);
     Consulta* buscarConsultaPorId(int id);
     bool verificarConflitoHorario(Medico* medico, const string& data, const string& hora);
 
-    // Persistência Completa
-    void salvarDados();
-    void carregarDados();
-    void salvarConsultas();
-    void carregarConsultas();
-    void salvarProntuarios();
-    void carregarProntuarios();
+    // --- PERSISTÊNCIA DE DADOS (Salvar/Carregar) ---
+    void salvarDados();         // Salva Pacientes e Médicos
+    void carregarDados();       // Carrega Pacientes e Médicos
+
+    void salvarConsultas();     // Salva Consultas
+    void carregarConsultas();   // Carrega Consultas
+
+    void salvarProntuarios();   // Salva Histórico Médico
+    void carregarProntuarios(); // Carrega Histórico Médico
 };
 
-#endif //SISTEMAHOSPITALAR_SISTEMA_H
+#endif // SISTEMAHOSPITALAR_SISTEMA_H
