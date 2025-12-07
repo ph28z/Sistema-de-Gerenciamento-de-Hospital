@@ -20,7 +20,7 @@ public:
     Sistema();
     ~Sistema();
 
-    // Menus
+    // Menus e Controle
     void iniciar();
     void exibirMenuPrincipal();
     void exibirMenuPacientes();
@@ -31,7 +31,7 @@ public:
     // Gestão de Pacientes
     void cadastrarPaciente();
     void listarPacientes();
-    void visualizarPaciente();  // NOVO
+    void visualizarPaciente();
     void editarPaciente();
     void removerPaciente();
 
@@ -39,7 +39,7 @@ public:
     void cadastrarMedico();
     void listarMedicos();
     void buscarMedicosPorEspecializacao();
-    
+
     // Gestão de Consultas
     void agendarConsulta();
     void listarConsultas();
@@ -47,18 +47,20 @@ public:
     void listarConsultasPorMedico();
     void modificarConsulta();
     void cancelarConsulta();
-    
-    // Métodos auxiliares
+
+    // Auxiliares
     Paciente* buscarPacientePorId(int id);
     Medico* buscarMedicoPorId(int id);
     Consulta* buscarConsultaPorId(int id);
     bool verificarConflitoHorario(Medico* medico, const string& data, const string& hora);
 
-    // Persistência
+    // Persistência Completa
     void salvarDados();
     void carregarDados();
     void salvarConsultas();
     void carregarConsultas();
+    void salvarProntuarios();
+    void carregarProntuarios();
 };
 
 #endif //SISTEMAHOSPITALAR_SISTEMA_H
