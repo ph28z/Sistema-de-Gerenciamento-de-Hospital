@@ -1,6 +1,7 @@
 #include "../include/Sistema.h"
 #include "../include/ExcecaoConsulta.h"
 #include "../include/Consulta.h"
+#include "../include/Utilidades.h" // <--- Inclusão do novo utilitário
 #include <iostream>
 #include <limits>
 #include <algorithm>
@@ -64,77 +65,98 @@ void Sistema::iniciar() {
             case 2: exibirMenuMedicos(); break;
             case 3: exibirMenuConsultas(); break;
             case 4: exibirEstatisticas(); break;
-            case 0: cout << "Saindo e salvando dados..." << endl; break;
-            default: cout << "Opcao invalida!" << endl;
+            case 0: cout << "\nFinalizando o sistema..." << endl; break;
+            default: cout << "Opcao invalida!" << endl; pausar();
         }
     } while (opcao != 0);
 }
 
 void Sistema::exibirMenuPrincipal() {
-    cout << "\n=== SISTEMA DE GESTAO HOSPITALAR ===" << endl;
+    limparTela(); // <--- Limpeza de tela
+    cout << "========================================" << endl;
+    cout << "      SISTEMA DE GESTAO HOSPITALAR      " << endl;
+    cout << "========================================" << endl;
     cout << "1. Gestao de Pacientes" << endl;
     cout << "2. Gestao de Medicos" << endl;
     cout << "3. Gestao de Consultas" << endl;
     cout << "4. Estatisticas Gerais" << endl;
     cout << "0. Sair" << endl;
+    cout << "----------------------------------------" << endl;
     cout << "Escolha uma opcao: ";
 }
 
 void Sistema::exibirMenuPacientes() {
     int opcao = 0;
     do {
-        cout << "\n--- MENU PACIENTES ---" << endl;
+        limparTela();
+        cout << "============ MENU PACIENTES ============" << endl;
         cout << "1. Cadastrar Paciente" << endl;
         cout << "2. Listar Pacientes" << endl;
-        cout << "3. Visualizar Paciente" << endl;
+        cout << "3. Visualizar Detalhes e Prontuario" << endl;
         cout << "4. Editar Paciente" << endl;
         cout << "5. Remover Paciente" << endl;
         cout << "0. Voltar" << endl;
+        cout << "----------------------------------------" << endl;
         cout << "Opcao: ";
         cin >> opcao; cin.ignore();
+
         switch (opcao) {
-            case 1: cadastrarPaciente(); break;
-            case 2: listarPacientes(); break;
-            case 3: visualizarPaciente(); break;
-            case 4: editarPaciente(); break;
-            case 5: removerPaciente(); break;
+            case 1: cadastrarPaciente(); pausar(); break;
+            case 2: listarPacientes(); pausar(); break;
+            case 3: visualizarPaciente(); pausar(); break;
+            case 4: editarPaciente(); pausar(); break;
+            case 5: removerPaciente(); pausar(); break;
             case 0: break;
-            default: cout << "Opcao invalida!" << endl;
+            default: cout << "Opcao invalida!" << endl; pausar();
         }
     } while (opcao != 0);
 }
 
 void Sistema::visualizarPaciente() {
+    limparTela();
+    cout << "--- VISUALIZAR PACIENTE ---" << endl;
     int id;
-    cout << "ID do Paciente: "; cin >> id; cin.ignore();
+    cout << "Digite o ID do Paciente: "; cin >> id; cin.ignore();
+
     Paciente* pac = buscarPacientePorId(id);
     if (!pac) { cout << "Paciente nao encontrado!" << endl; return; }
 
     pac->imprimirDados();
+
     cout << "\nDeseja visualizar o prontuario? (S/N): ";
     char opcao; cin >> opcao; cin.ignore();
-    if (opcao == 'S' || opcao == 's') pac->visualizarProntuario();
+    if (opcao == 'S' || opcao == 's') {
+        cout << endl;
+        pac->visualizarProntuario();
+    }
 }
 
 void Sistema::cadastrarPaciente() {
+    limparTela();
+    cout << "--- CADASTRO DE PACIENTE ---" << endl;
     string nome, endereco, telefone;
     int idade;
+
     cout << "Nome: "; getline(cin, nome);
     cout << "Endereco: "; getline(cin, endereco);
     cout << "Telefone: "; getline(cin, telefone);
     cout << "Idade: "; cin >> idade;
+
     Paciente* p = new Paciente(nome, endereco, telefone, idade);
     pacientes.push_back(p);
-    cout << "Paciente cadastrado com sucesso! ID: " << p->getId() << endl;
+    cout << "\n>>> Paciente cadastrado com sucesso! ID: " << p->getId() << endl;
 }
 
 void Sistema::listarPacientes() {
+    limparTela();
     if (pacientes.empty()) { cout << "Nenhum paciente cadastrado." << endl; return; }
-    cout << "\n--- LISTA DE PACIENTES ---" << endl;
+    cout << "--- LISTA DE PACIENTES ---" << endl;
     for (const auto& p : pacientes) p->exibirResumo();
 }
 
 void Sistema::editarPaciente() {
+    limparTela();
+    cout << "--- EDITAR PACIENTE ---" << endl;
     int id;
     cout << "ID do Paciente: "; cin >> id; cin.ignore();
     Paciente* pac = buscarPacientePorId(id);
@@ -148,72 +170,71 @@ void Sistema::editarPaciente() {
     else if (opcao == 3) { string t; cout << "Novo telefone: "; getline(cin, t); pac->setTelefone(t); }
     else if (opcao == 4) { int i; cout << "Nova idade: "; cin >> i; pac->setIdade(i); }
     else cout << "Opcao invalida!" << endl;
+
+    cout << "Dados atualizados!" << endl;
 }
 
-// --- MÉTODO ATUALIZADO COM TRY-CATCH ---
 void Sistema::removerPaciente() {
+    limparTela();
+    cout << "--- REMOVER PACIENTE ---" << endl;
     try {
         int id;
         cout << "ID do Paciente: "; cin >> id;
 
         Paciente* pac = buscarPacientePorId(id);
-        if (!pac) {
-            // Lança exceção para paciente inexistente
-            throw ExcecaoConsulta("Paciente nao encontrado!", ExcecaoConsulta::PACIENTE_INEXISTENTE);
-        }
+        if (!pac) throw ExcecaoConsulta("Paciente nao encontrado!", ExcecaoConsulta::PACIENTE_INEXISTENTE);
 
-        // Verifica se tem consultas e lança a exceção correta
         if (pac->temConsultasAgendadas()) {
-            throw ExcecaoConsulta("Nao e possivel remover: Paciente possui consultas pendentes!",
-                                  ExcecaoConsulta::REMOCAO_PROIBIDA);
+            throw ExcecaoConsulta("Nao e possivel remover: Paciente possui consultas pendentes!", ExcecaoConsulta::REMOCAO_PROIBIDA);
         }
 
-        pac->imprimirDados();
-
+        pac->exibirResumo();
         cout << "\nTem certeza que deseja remover este paciente? (S/N): ";
-        char confirmacao;
-        cin >> confirmacao;
+        char confirmacao; cin >> confirmacao;
 
         if (confirmacao == 'S' || confirmacao == 's') {
             auto it = find(pacientes.begin(), pacientes.end(), pac);
             if (it != pacientes.end()) {
                 delete *it;
                 pacientes.erase(it);
-                cout << "Paciente removido com sucesso!" << endl;
+                cout << "\n>>> Paciente removido com sucesso!" << endl;
             }
         } else {
             cout << "Remocao cancelada." << endl;
         }
-
     } catch (const ExcecaoConsulta& e) {
         cout << "\nERRO: " << e.getMensagemCompleta() << endl;
     } catch (...) {
-        cout << "\nERRO desconhecido ao remover paciente." << endl;
+        cout << "\nERRO desconhecido." << endl;
     }
 }
-// ---------------------------------------
 
+// --- MEDICOS ---
 void Sistema::exibirMenuMedicos() {
     int opcao = 0;
     do {
-        cout << "\n--- MENU MEDICOS ---" << endl;
+        limparTela();
+        cout << "============= MENU MEDICOS =============" << endl;
         cout << "1. Cadastrar Medico" << endl;
         cout << "2. Listar Medicos" << endl;
         cout << "3. Buscar por Especializacao" << endl;
         cout << "0. Voltar" << endl;
+        cout << "----------------------------------------" << endl;
         cout << "Opcao: ";
         cin >> opcao; cin.ignore();
         switch (opcao) {
-            case 1: cadastrarMedico(); break;
-            case 2: listarMedicos(); break;
-            case 3: buscarMedicosPorEspecializacao(); break;
+            case 1: cadastrarMedico(); pausar(); break;
+            case 2: listarMedicos(); pausar(); break;
+            case 3: buscarMedicosPorEspecializacao(); pausar(); break;
             case 0: break;
-            default: cout << "Opcao invalida!" << endl;
+            default: cout << "Opcao invalida!" << endl; pausar();
         }
     } while (opcao != 0);
 }
 
 void Sistema::cadastrarMedico() {
+    limparTela();
+    cout << "--- CADASTRO DE MEDICO ---" << endl;
     string nome, endereco, telefone, especialidade, crm;
     cout << "Nome: "; getline(cin, nome);
     cout << "Endereco: "; getline(cin, endereco);
@@ -222,56 +243,64 @@ void Sistema::cadastrarMedico() {
     cout << "CRM: "; getline(cin, crm);
     Medico* m = new Medico(nome, endereco, telefone, especialidade, crm);
     medicos.push_back(m);
-    cout << "Medico cadastrado com sucesso! ID: " << m->getId() << endl;
+    cout << "\n>>> Medico cadastrado com sucesso! ID: " << m->getId() << endl;
 }
 
 void Sistema::listarMedicos() {
+    limparTela();
     if (medicos.empty()) { cout << "Nenhum medico cadastrado." << endl; return; }
-    cout << "\n--- LISTA DE MEDICOS ---" << endl;
+    cout << "--- LISTA DE MEDICOS ---" << endl;
     for (const auto& m : medicos) m->exibirResumo();
 }
 
 void Sistema::buscarMedicosPorEspecializacao() {
+    limparTela();
+    cout << "--- BUSCA POR ESPECIALIZACAO ---" << endl;
     string esp;
     cout << "Digite a especializacao: "; getline(cin, esp);
+
+    cout << "\nResultados:" << endl;
     bool achou = false;
     for(const auto& m : medicos) {
-        // Conversão simples para minusculo na busca (opcional, mas ajuda)
         string mEsp = m->getEspecialidade();
-        // Nota: para uma busca case-insensitive real, seria necessário transformar ambas as strings
+        // Busca simples (case sensitive na implementação básica)
         if(mEsp.find(esp) != string::npos) {
             m->exibirResumo(); achou = true;
         }
     }
-    if(!achou) cout << "Nenhum medico encontrado." << endl;
+    if(!achou) cout << "Nenhum medico encontrado com esse termo." << endl;
 }
 
 // --- CONSULTAS ---
 void Sistema::exibirMenuConsultas() {
     int opcao = 0;
     do {
-        cout << "\n--- MENU CONSULTAS ---" << endl;
+        limparTela();
+        cout << "============ MENU CONSULTAS ============" << endl;
         cout << "1. Agendar Consulta" << endl;
-        cout << "2. Listar Todas" << endl;
-        cout << "3. Por Paciente" << endl;
-        cout << "4. Por Medico" << endl;
-        cout << "5. Modificar" << endl;
-        cout << "6. Cancelar" << endl;
+        cout << "2. Listar Todas as Consultas" << endl;
+        cout << "3. Listar por Paciente" << endl;
+        cout << "4. Listar por Medico" << endl;
+        cout << "5. Modificar Consulta" << endl;
+        cout << "6. Cancelar Consulta" << endl;
         cout << "0. Voltar" << endl;
+        cout << "----------------------------------------" << endl;
         cout << "Opcao: "; cin >> opcao; cin.ignore();
         switch (opcao) {
-            case 1: agendarConsulta(); break;
-            case 2: listarConsultas(); break;
-            case 3: listarConsultasPorPaciente(); break;
-            case 4: listarConsultasPorMedico(); break;
-            case 5: modificarConsulta(); break;
-            case 6: cancelarConsulta(); break;
+            case 1: agendarConsulta(); pausar(); break;
+            case 2: listarConsultas(); pausar(); break;
+            case 3: listarConsultasPorPaciente(); pausar(); break;
+            case 4: listarConsultasPorMedico(); pausar(); break;
+            case 5: modificarConsulta(); pausar(); break;
+            case 6: cancelarConsulta(); pausar(); break;
             case 0: break;
         }
     } while (opcao != 0);
 }
 
 void Sistema::agendarConsulta() {
+    limparTela();
+    cout << "--- AGENDAR CONSULTA ---" << endl;
     try {
         int idPac, idMed, tipo;
         string data, hora;
@@ -290,7 +319,7 @@ void Sistema::agendarConsulta() {
         if (verificarConflitoHorario(m, data, hora))
             throw ExcecaoConsulta("Medico ocupado neste horario", ExcecaoConsulta::CONFLITO_HORARIO);
 
-        cout << "Tipo (1-Normal, 2-Emergencia, 3-Retorno): "; cin >> tipo; cin.ignore();
+        cout << "\nTipo (1-Normal, 2-Emergencia, 3-Retorno): "; cin >> tipo; cin.ignore();
 
         Consulta* c = nullptr;
         if (tipo == 1) {
@@ -309,38 +338,58 @@ void Sistema::agendarConsulta() {
         }
 
         consultas.push_back(c);
-        cout << "Agendado! ID: " << c->getId() << " | Valor: R$ " << c->calcularValor() << endl;
+        cout << "\n>>> Agendado com sucesso!" << endl;
+        cout << "ID: " << c->getId() << " | Valor: R$ " << fixed << setprecision(2) << c->calcularValor() << endl;
 
-    } catch (const ExcecaoConsulta& e) {
-        cout << "ERRO: " << e.getMensagemCompleta() << endl;
     } catch (const exception& e) {
-        cout << "ERRO: " << e.what() << endl;
+        cout << "\nERRO: " << e.what() << endl;
     }
 }
 
 void Sistema::listarConsultas() {
-    if (consultas.empty()) { cout << "Nenhuma consulta." << endl; return; }
+    limparTela();
+    if (consultas.empty()) { cout << "Nenhuma consulta agendada." << endl; return; }
+    cout << "--- TODAS AS CONSULTAS ---" << endl;
     for(const auto& c : consultas) c->exibirResumo();
 }
 
 void Sistema::listarConsultasPorPaciente() {
+    limparTela();
+    cout << "--- CONSULTAS POR PACIENTE ---" << endl;
     int id; cout << "ID Paciente: "; cin >> id;
-    for(const auto& c : consultas) if(c->getPaciente()->getId() == id) c->exibirResumo();
+    bool achou = false;
+    for(const auto& c : consultas) {
+        if(c->getPaciente()->getId() == id) {
+            c->exibirResumo(); achou = true;
+        }
+    }
+    if(!achou) cout << "Nenhuma consulta encontrada para este ID." << endl;
 }
 
 void Sistema::listarConsultasPorMedico() {
+    limparTela();
+    cout << "--- CONSULTAS POR MEDICO ---" << endl;
     int id; cout << "ID Medico: "; cin >> id;
-    for(const auto& c : consultas) if(c->getMedico()->getId() == id) c->exibirResumo();
+    bool achou = false;
+    for(const auto& c : consultas) {
+        if(c->getMedico()->getId() == id) {
+            c->exibirResumo(); achou = true;
+        }
+    }
+    if(!achou) cout << "Nenhuma consulta encontrada para este ID." << endl;
 }
 
 void Sistema::modificarConsulta() {
+    limparTela();
+    cout << "--- MODIFICAR CONSULTA ---" << endl;
     try {
         int id; cout << "ID Consulta: "; cin >> id; cin.ignore();
         Consulta* c = buscarConsultaPorId(id);
         if(!c) throw ExcecaoConsulta("Consulta nao encontrada!", ExcecaoConsulta::CONSULTA_INEXISTENTE);
 
+        c->imprimirDetalhes();
         string d, h;
-        cout << "Nova Data: "; getline(cin, d);
+        cout << "\nNova Data: "; getline(cin, d);
         cout << "Nova Hora: "; getline(cin, h);
 
         if (verificarConflitoHorario(c->getMedico(), d, h)) {
@@ -348,18 +397,20 @@ void Sistema::modificarConsulta() {
         }
 
         c->setData(d); c->setHora(h);
-        cout << "Atualizado!" << endl;
+        cout << "\n>>> Consulta atualizada com sucesso!" << endl;
     } catch (const ExcecaoConsulta& e) {
-        cout << "ERRO: " << e.getMensagemCompleta() << endl;
+        cout << "\nERRO: " << e.getMensagemCompleta() << endl;
     }
 }
 
 void Sistema::cancelarConsulta() {
+    limparTela();
+    cout << "--- CANCELAR CONSULTA ---" << endl;
     int id; cout << "ID Consulta: "; cin >> id;
     Consulta* c = buscarConsultaPorId(id);
     if(c) {
         c->setStatus("Cancelada");
-        cout << "Consulta cancelada." << endl;
+        cout << "\n>>> Consulta marcada como CANCELADA." << endl;
     } else cout << "Nao encontrada." << endl;
 }
 
@@ -384,25 +435,44 @@ bool Sistema::verificarConflitoHorario(Medico* m, const string& data, const stri
 }
 
 void Sistema::exibirEstatisticas() {
-    cout << "Pacientes: " << pacientes.size() << " | Medicos: " << medicos.size() << " | Consultas: " << consultas.size() << endl;
+    limparTela();
+    cout << "========== ESTATISTICAS ==========" << endl;
+    cout << "Pacientes cadastrados: " << pacientes.size() << endl;
+    cout << "Medicos cadastrados:   " << medicos.size() << endl;
+    cout << "Total de Consultas:    " << consultas.size() << endl;
+    cout << "==================================" << endl;
+    pausar();
 }
 
 // --- PERSISTÊNCIA ---
 void Sistema::salvarDados() {
     string base = obterCaminhoData();
-    ofstream pac(base + "/pacientes.txt");
-    pac << pacientes.size() << endl;
-    for(auto p : pacientes) pac << p->getId() << "\n" << p->getNome() << "\n" << p->getEndereco() << "\n" << p->getTelefone() << "\n" << p->getIdade() << endl;
-    pac.close();
 
+    // Salvar Pacientes
+    ofstream pac(base + "/pacientes.txt");
+    if(pac.is_open()) {
+        pac << pacientes.size() << endl;
+        for(auto p : pacientes)
+            pac << p->getId() << "\n" << p->getNome() << "\n" << p->getEndereco()
+                << "\n" << p->getTelefone() << "\n" << p->getIdade() << endl;
+        pac.close();
+    }
+
+    // Salvar Médicos
     ofstream med(base + "/medicos.txt");
-    med << medicos.size() << endl;
-    for(auto m : medicos) med << m->getId() << "\n" << m->getNome() << "\n" << m->getEndereco() << "\n" << m->getTelefone() << "\n" << m->getEspecialidade() << "\n" << m->getCrm() << endl;
-    med.close();
+    if(med.is_open()) {
+        med << medicos.size() << endl;
+        for(auto m : medicos)
+            med << m->getId() << "\n" << m->getNome() << "\n" << m->getEndereco()
+                << "\n" << m->getTelefone() << "\n" << m->getEspecialidade() << "\n" << m->getCrm() << endl;
+        med.close();
+    }
 }
 
 void Sistema::carregarDados() {
     string base = obterCaminhoData();
+
+    // Carregar Pacientes
     ifstream pac(base + "/pacientes.txt");
     int qtd;
     if(pac >> qtd) {
@@ -410,18 +480,25 @@ void Sistema::carregarDados() {
         for(int i=0; i<qtd; i++) {
             int id, idad; string n, e, t;
             pac >> id; pac.ignore(); getline(pac, n); getline(pac, e); getline(pac, t); pac >> idad; pac.ignore();
-            Paciente* p = new Paciente(n, e, t, idad); p->setId(id); pacientes.push_back(p); Paciente::atualizarUltimoID(id);
+            Paciente* p = new Paciente(n, e, t, idad);
+            p->setId(id);
+            pacientes.push_back(p);
+            Paciente::atualizarUltimoID(id);
         }
     }
     pac.close();
 
+    // Carregar Médicos
     ifstream med(base + "/medicos.txt");
     if(med >> qtd) {
         med.ignore();
         for(int i=0; i<qtd; i++) {
             int id; string n, e, t, esp, crm;
             med >> id; med.ignore(); getline(med, n); getline(med, e); getline(med, t); getline(med, esp); getline(med, crm);
-            Medico* m = new Medico(n, e, t, esp, crm); m->setId(id); medicos.push_back(m); Medico::atualizarUltimoID(id);
+            Medico* m = new Medico(n, e, t, esp, crm);
+            m->setId(id);
+            medicos.push_back(m);
+            Medico::atualizarUltimoID(id);
         }
     }
     med.close();
@@ -430,6 +507,8 @@ void Sistema::carregarDados() {
 void Sistema::salvarConsultas() {
     string base = obterCaminhoData();
     ofstream arq(base + "/consultas.txt");
+    if(!arq.is_open()) return;
+
     arq << consultas.size() << endl;
     for(auto c : consultas) {
         int tipo = (c->getTipo() == "Emergencia" ? 2 : (c->getTipo() == "Retorno" ? 3 : 1));
@@ -468,7 +547,11 @@ void Sistema::carregarConsultas() {
             else if(tipo == 2) { int nv; string ds; arq >> nv; arq.ignore(); getline(arq, ds); c = new Emergencia(p, m, d, h, nv, ds); }
             else { int ori; string ob; arq >> ori; arq.ignore(); getline(arq, ob); c = new Retorno(p, m, d, h, ori, ob); }
 
-            if(c) { c->setId(id); c->setStatus(st); consultas.push_back(c); Consulta::atualizarUltimoID(id); }
+            if(c) {
+                c->setId(id); c->setStatus(st);
+                consultas.push_back(c);
+                Consulta::atualizarUltimoID(id);
+            }
         }
     }
     arq.close();

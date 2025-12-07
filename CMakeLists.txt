@@ -35,4 +35,5 @@ add_executable(SistemaHospitalar main.cpp ${SOURCES}
         include/Consulta.h
         src/Consulta.cpp
         include/ExcecaoConsulta.h
+        include/Utilidades.h
 )
